@@ -1,0 +1,445 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, maximum-scale=1.0">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <title>Purple Handwriting to Text</title>
+  <link href="style.css" rel="stylesheet" type="text/css" />
+  <link rel="icon" type="image/png" href="favicon.png">
+</head>
+<body>
+  <!-- Mobile status bar simulation -->
+  <div class="status-bar">
+    <div class="status-bar-time" id="statusTime">12:30</div>
+    <div class="status-bar-icons">
+      <svg class="status-bar-icon" viewBox="0 0 24 24" fill="currentColor">
+        <path d="M12,21L15.6,17.4H14V10H10V17.4H8.4L12,21M17,7H22V9H19V14H17V7M3,7H8V9H5V14H3V7M13,7H11V9H13V7Z"></path>
+      </svg>
+      <svg class="status-bar-icon" viewBox="0 0 24 24" fill="currentColor">
+        <path d="M17,4V2H7V4H2V11C2,13.21 3.79,15 6,15H8V20H16V15H18C20.21,15 22,13.21 22,11V4H17M20,11C20,12.1 19.1,13 18,13H6C4.9,13 4,12.1 4,11V6H20V11Z"></path>
+      </svg>
+    </div>
+  </div>
+  
+  <!-- Overlay -->
+  <div class="overlay" id="overlay"></div>
+  
+  <!-- Sidebar Menu -->
+  <div class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <h2 class="sidebar-title">Menu</h2>
+      <button class="sidebar-close" id="closeSidebar">&times;</button>
+    </div>
+    
+    <div class="theme-toggle-container">
+      <span class="theme-toggle-label">Dark Mode</span>
+      <label class="theme-toggle">
+        <input type="checkbox" id="themeToggle">
+        <span class="theme-toggle-slider">
+          <div class="theme-toggle-icons">
+            <span>🌙</span>
+            <span>☀️</span>
+          </div>
+        </span>
+      </label>
+    </div>
+    
+    <ul class="sidebar-menu">
+      <li><a href="#" data-page="home" class="active">Home</a></li>
+      <li><a href="#" data-page="drawing">Drawing Studio</a></li>
+      <li><a href="#" data-page="my-texts">My Texts</a></li>
+      <li><a href="#" data-page="history">History</a></li>
+      <li><a href="#" data-page="settings">Settings</a></li>
+      <li><a href="#" data-page="help">Help</a></li>
+      <li><a href="#" data-page="about">About</a></li>
+    </ul>
+  </div>
+  
+  <div class="container">
+    <div class="app-header">
+      <button class="menu-button" id="menuButton">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+      <h1 class="app-title">✨ Handwriting to Text ✨</h1>
+    </div>
+    
+    <!-- Home Page -->
+    <div class="page active" id="home-page">
+      <div class="text-display" id="textDisplay">
+        <p id="convertedText">Your converted text will appear here</p>
+      </div>
+      
+      <div class="canvas-container">
+        <canvas id="drawingCanvas"></canvas>
+      </div>
+      
+      <div class="controls">
+        <div class="control-group">
+          <label for="colorPicker">Color:</label>
+          <input type="color" id="colorPicker" value="#000000">
+        </div>
+        
+        <div class="control-group">
+          <label for="thicknessSlider">Thickness:</label>
+          <input type="range" id="thicknessSlider" min="1" max="20" value="3">
+        </div>
+      </div>
+      
+      <div class="buttons">
+        <button id="convertBtn">Convert to Text</button>
+        <button id="clearCanvasBtn">Clear Canvas</button>
+        <button id="clearTextBtn">Clear Text</button>
+      </div>
+    </div>
+    
+    <!-- Drawing Studio Page -->
+    <div class="page" id="drawing-page">
+      <div class="drawing-studio">
+        <div class="image-upload-container">
+          <input type="file" id="imageUploader" accept="image/*" class="image-uploader-input">
+          <label for="imageUploader" class="image-uploader-label">
+            <svg viewBox="0 0 24 24" fill="currentColor" class="upload-icon">
+              <path d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM14 13v4h-4v-4H7l5-5 5 5h-3z"></path>
+            </svg>
+            <span>Upload Image</span>
+          </label>
+        </div>
+        
+        <div class="canvas-container drawing-studio-canvas">
+          <canvas id="drawingStudioCanvas"></canvas>
+          <div class="background-image-container">
+            <img id="backgroundImage" class="background-image">
+          </div>
+        </div>
+        
+        <div class="drawing-studio-controls">
+          <div class="control-group">
+            <label for="drawingColorPicker">Color:</label>
+            <input type="color" id="drawingColorPicker" value="#8e54e9">
+          </div>
+          
+          <div class="control-group">
+            <label for="drawingThicknessSlider">Thickness:</label>
+            <input type="range" id="drawingThicknessSlider" min="1" max="20" value="3">
+          </div>
+          
+          <div class="control-group opacity-control">
+            <label for="imageOpacitySlider">Image Opacity:</label>
+            <input type="range" id="imageOpacitySlider" min="0" max="100" value="50">
+          </div>
+        </div>
+        
+        <div class="drawing-studio-buttons">
+          <button id="undoBtn" class="drawing-btn">
+            <svg viewBox="0 0 24 24" fill="currentColor" width="18" height="18">
+              <path d="M12.5,8C9.85,8 7.45,9 5.6,10.6L2,7V16H11L7.38,12.38C8.77,11.22 10.54,10.5 12.5,10.5C16.04,10.5 19.05,12.81 20.1,16L22.47,15.22C21.08,11.03 17.15,8 12.5,8Z"></path>
+            </svg>
+            Undo
+          </button>
+          <button id="clearDrawingBtn" class="drawing-btn">Clear Drawing</button>
+          <button id="clearImageBtn" class="drawing-btn">Clear Image</button>
+          <button id="saveDrawingBtn" class="drawing-btn">
+            <svg viewBox="0 0 24 24" fill="currentColor" width="18" height="18">
+              <path d="M5,20H19V18H5M19,9H15V3H9V9H5L12,16L19,9Z"></path>
+            </svg>
+            Save Drawing
+          </button>
+        </div>
+      </div>
+    </div>
+    
+    <!-- My Texts Page -->
+    <div class="page" id="my-texts-page">
+      <div class="page-header">
+        <h2>My Saved Texts</h2>
+      </div>
+      
+      <div class="empty-state" id="noSavedTexts">
+        <div class="empty-state-icon">
+          <svg viewBox="0 0 24 24" fill="currentColor">
+            <path d="M19,3H5C3.89,3 3,3.89 3,5V19A2,2 0 0,0 5,21H19A2,2 0 0,0 21,19V5C21,3.89 20.1,3 19,3M19,5V19H5V5H19Z"></path>
+            <path d="M7,7H17V9H7V7M7,11H17V13H7V11M7,15H13V17H7V15Z"></path>
+          </svg>
+        </div>
+        <p>You haven't saved any texts yet.</p>
+        <p>Convert handwriting in the Home page and tap "Save" to store your texts here.</p>
+      </div>
+      
+      <div class="text-list" id="savedTextsList">
+        <!-- Text items will be added dynamically here -->
+      </div>
+    </div>
+    
+    <!-- History Page -->
+    <div class="page" id="history-page">
+      <div class="page-header">
+        <h2>Conversion History</h2>
+        <button id="clearHistoryBtn" class="section-button">
+          <svg viewBox="0 0 24 24" fill="currentColor" width="16" height="16">
+            <path d="M19,4H15.5L14.5,3H9.5L8.5,4H5V6H19M6,19A2,2 0 0,0 8,21H16A2,2 0 0,0 18,19V7H6V19Z"></path>
+          </svg>
+          Clear History
+        </button>
+      </div>
+      
+      <div class="empty-state" id="noHistory">
+        <div class="empty-state-icon">
+          <svg viewBox="0 0 24 24" fill="currentColor">
+            <path d="M13.5,8H12V13L16.28,15.54L17,14.33L13.5,12.25V8M13,3A9,9 0 0,0 4,12H1L4.96,16.03L9,12H6A7,7 0 0,1 13,5A7,7 0 0,1 20,12A7,7 0 0,1 13,19C11.07,19 9.32,18.21 8.06,16.94L6.64,18.36C8.27,20 10.5,21 13,21A9,9 0 0,0 22,12A9,9 0 0,0 13,3"></path>
+          </svg>
+        </div>
+        <p>No conversion history yet.</p>
+        <p>Your recent text conversions will appear here.</p>
+      </div>
+      
+      <div class="history-list" id="historyList">
+        <!-- History items will be added dynamically here -->
+      </div>
+    </div>
+    
+    <!-- Settings Page -->
+    <div class="page" id="settings-page">
+      <div class="page-header">
+        <h2>Settings</h2>
+      </div>
+      
+      <div class="settings-section">
+        <h3>Appearance</h3>
+        <div class="settings-item">
+          <div class="settings-item-label">
+            <span>Dark Mode</span>
+          </div>
+          <div class="settings-item-control">
+            <label class="theme-toggle settings-toggle">
+              <input type="checkbox" id="settingsThemeToggle">
+              <span class="theme-toggle-slider">
+                <div class="theme-toggle-icons">
+                  <span>🌙</span>
+                  <span>☀️</span>
+                </div>
+              </span>
+            </label>
+          </div>
+        </div>
+      </div>
+      
+      <div class="settings-section">
+        <h3>Drawing Settings</h3>
+        <div class="settings-item">
+          <div class="settings-item-label">
+            <span>Default Brush Color</span>
+          </div>
+          <div class="settings-item-control">
+            <input type="color" id="defaultColorSetting" value="#8e54e9">
+          </div>
+        </div>
+        
+        <div class="settings-item">
+          <div class="settings-item-label">
+            <span>Default Brush Thickness</span>
+          </div>
+          <div class="settings-item-control">
+            <input type="range" id="defaultThicknessSetting" min="1" max="20" value="3">
+            <span id="thicknessValue">3</span>
+          </div>
+        </div>
+      </div>
+      
+      <div class="settings-section">
+        <h3>Recognition Settings</h3>
+        <div class="settings-item">
+          <div class="settings-item-label">
+            <span>Auto-save Converted Text</span>
+          </div>
+          <div class="settings-item-control">
+            <label class="switch">
+              <input type="checkbox" id="autoSaveSetting">
+              <span class="slider round"></span>
+            </label>
+          </div>
+        </div>
+      </div>
+      
+      <div class="settings-section">
+        <h3>Storage</h3>
+        <div class="settings-info">
+          <p>Saved Texts: <span id="savedTextsCount">0</span></p>
+          <p>History Items: <span id="historyItemsCount">0</span></p>
+        </div>
+        <button id="clearAllDataBtn" class="settings-button">Clear All Data</button>
+      </div>
+    </div>
+    
+    <!-- Help Page -->
+    <div class="page" id="help-page">
+      <div class="page-header">
+        <h2>Help & Support</h2>
+      </div>
+      
+      <div class="help-section">
+        <div class="help-card">
+          <div class="help-card-icon">
+            <svg viewBox="0 0 24 24" fill="currentColor">
+              <path d="M9.5,3A6.5,6.5 0 0,1 16,9.5C16,11.11 15.41,12.59 14.44,13.73L14.71,14H15.5L20.5,19L19,20.5L14,15.5V14.71L13.73,14.44C12.59,15.41 11.11,16 9.5,16A6.5,6.5 0 0,1 3,9.5A6.5,6.5 0 0,1 9.5,3M9.5,5C7,5 5,7 5,9.5C5,12 7,14 9.5,14C12,14 14,12 14,9.5C14,7 12,5 9.5,5Z"></path>
+            </svg>
+          </div>
+          <h3>How to Use</h3>
+          <div class="help-content">
+            <h4>Converting Handwriting to Text</h4>
+            <ol>
+              <li>On the Home page, use your finger or stylus to write on the canvas.</li>
+              <li>Tap "Convert to Text" to recognize your handwriting.</li>
+              <li>Your converted text will appear in the text display area.</li>
+              <li>Use "Clear Canvas" to start over or "Clear Text" to clear the converted text.</li>
+            </ol>
+            
+            <h4>Drawing Studio</h4>
+            <ol>
+              <li>Upload an image to draw on by tapping "Upload Image".</li>
+              <li>Adjust image opacity using the slider.</li>
+              <li>Draw on the image with your selected color and thickness.</li>
+              <li>Save your creation using the "Save Drawing" button.</li>
+            </ol>
+          </div>
+        </div>
+        
+        <div class="help-card">
+          <div class="help-card-icon">
+            <svg viewBox="0 0 24 24" fill="currentColor">
+              <path d="M12,2A10,10 0 0,1 22,12A10,10 0 0,1 12,22A10,10 0 0,1 2,12A10,10 0 0,1 12,2M12,4A8,8 0 0,0 4,12A8,8 0 0,0 12,20A8,8 0 0,0 20,12A8,8 0 0,0 12,4M11,16.5L6.5,12L7.91,10.59L11,13.67L16.59,8.09L18,9.5L11,16.5Z"></path>
+            </svg>
+          </div>
+          <h3>Tips for Better Recognition</h3>
+          <div class="help-content">
+            <ul>
+              <li>Write clearly with adequate spacing between words.</li>
+              <li>Use a darker color for better contrast.</li>
+              <li>Write at a medium size – not too small or too large.</li>
+              <li>Avoid cursive writing for better recognition accuracy.</li>
+              <li>Keep the canvas clean by using the "Clear Canvas" button between conversions.</li>
+            </ul>
+          </div>
+        </div>
+        
+        <div class="help-card">
+          <div class="help-card-icon">
+            <svg viewBox="0 0 24 24" fill="currentColor">
+              <path d="M11,18H13V16H11V18M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2M12,20C7.59,20 4,16.41 4,12C4,7.59 7.59,4 12,4C16.41,4 20,7.59 20,12C20,16.41 16.41,20 12,20M12,6A4,4 0 0,0 8,10H10A2,2 0 0,1 12,8A2,2 0 0,1 14,10C14,12 11,11.75 11,15H13C13,12.75 16,12.5 16,10A4,4 0 0,0 12,6Z"></path>
+            </svg>
+          </div>
+          <h3>FAQ</h3>
+          <div class="help-content">
+            <div class="faq-item">
+              <h4>Why is my handwriting not being recognized correctly?</h4>
+              <p>Recognition accuracy depends on handwriting clarity, lighting, and contrast. Try using a darker color and writing more clearly.</p>
+            </div>
+            
+            <div class="faq-item">
+              <h4>Can I save my converted text?</h4>
+              <p>Yes, your converted text is automatically saved in the History section. You can also manually save important texts to the "My Texts" section.</p>
+            </div>
+            
+            <div class="faq-item">
+              <h4>How do I change the app theme?</h4>
+              <p>You can toggle between light and dark modes in the menu sidebar or in the Settings page.</p>
+            </div>
+            
+            <div class="faq-item">
+              <h4>Does this app work offline?</h4>
+              <p>The drawing features work offline, but text recognition requires an internet connection for the best accuracy.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- About Page -->
+    <div class="page" id="about-page">
+      <div class="page-header">
+        <h2>About</h2>
+      </div>
+      
+      <div class="about-content">
+        <div class="app-logo">
+          ✨
+          <span class="app-logo-text">Handwriting to Text</span>
+          ✨
+        </div>
+        
+        <div class="app-info">
+          <p class="app-version">Version 1.0.0</p>
+          <p class="app-description">A powerful tool for converting handwritten notes to digital text, with additional drawing and image annotation capabilities.</p>
+        </div>
+        
+        <div class="tech-section">
+          <h3>Technologies Used</h3>
+          <ul class="tech-list">
+            <li>HTML5 Canvas for drawing</li>
+            <li>Tesseract.js for OCR (Optical Character Recognition)</li>
+            <li>Modern CSS with responsive design</li>
+            <li>JavaScript for interactive features</li>
+          </ul>
+        </div>
+        
+        <div class="feature-section">
+          <h3>Features</h3>
+          <div class="features-grid">
+            <div class="feature-item">
+              <svg viewBox="0 0 24 24" fill="currentColor" class="feature-icon">
+                <path d="M9.5,3A6.5,6.5 0 0,1 16,9.5C16,11.11 15.41,12.59 14.44,13.73L14.71,14H15.5L20.5,19L19,20.5L14,15.5V14.71L13.73,14.44C12.59,15.41 11.11,16 9.5,16A6.5,6.5 0 0,1 3,9.5A6.5,6.5 0 0,1 9.5,3M9.5,5C7,5 5,7 5,9.5C5,12 7,14 9.5,14C12,14 14,12 14,9.5C14,7 12,5 9.5,5Z"></path>
+              </svg>
+              <div class="feature-details">
+                <h4>Handwriting Recognition</h4>
+                <p>Convert handwritten notes to digital text.</p>
+              </div>
+            </div>
+            
+            <div class="feature-item">
+              <svg viewBox="0 0 24 24" fill="currentColor" class="feature-icon">
+                <path d="M20.71,7.04C21.1,6.65 21.1,6 20.71,5.63L18.37,3.29C18,2.9 17.35,2.9 16.96,3.29L15.12,5.12L18.87,8.87M3,17.25V21H6.75L17.81,9.93L14.06,6.18L3,17.25Z"></path>
+              </svg>
+              <div class="feature-details">
+                <h4>Drawing Studio</h4>
+                <p>Draw on images and create annotations.</p>
+              </div>
+            </div>
+            
+            <div class="feature-item">
+              <svg viewBox="0 0 24 24" fill="currentColor" class="feature-icon">
+                <path d="M20,3H4A1,1 0 0,0 3,4V10A1,1 0 0,0 4,11H20A1,1 0 0,0 21,10V4A1,1 0 0,0 20,3M20,13H4A1,1 0 0,0 3,14V20A1,1 0 0,0 4,21H20A1,1 0 0,0 21,20V14A1,1 0 0,0 20,13M5,15H14V19H5V15"></path>
+              </svg>
+              <div class="feature-details">
+                <h4>Dark/Light Modes</h4>
+                <p>Choose between dark and light themes.</p>
+              </div>
+            </div>
+            
+            <div class="feature-item">
+              <svg viewBox="0 0 24 24" fill="currentColor" class="feature-icon">
+                <path d="M15,9H5V5H15M12,19A3,3 0 0,1 9,16A3,3 0 0,1 12,13A3,3 0 0,1 15,16A3,3 0 0,1 12,19M17,3H5C3.89,3 3,3.9 3,5V19A2,2 0 0,0 5,21H19A2,2 0 0,0 21,19V7L17,3Z"></path>
+              </svg>
+              <div class="feature-details">
+                <h4>History & Storage</h4>
+                <p>Keep track of your converted texts.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="about-footer">
+          <p>Created with ❤️ by Purple Handwriting to Text Team</p>
+          <p class="copyright">© 2023 All Rights Reserved</p>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <script src="https://unpkg.com/tesseract.js@v2.1.0/dist/tesseract.min.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>
